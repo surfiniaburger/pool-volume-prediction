@@ -7,6 +7,7 @@ import certifi
 os.environ['SSL_CERT_FILE'] = certifi.where()
 import pandas as pd
 import polars as pl
+import tf2onnx
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
@@ -170,15 +171,15 @@ def convert_to_onnx(model, onnx_file_path):
     Convert a TensorFlow model to ONNX format and save it.
 
     Args:
-        tf_model (tf.keras.Model): The TensorFlow model to convert.
-        output_file (str): The path to save the ONNX model file.
+        model (tf.keras.Model): The TensorFlow model to convert.
+        onnx_file_path (str): The path to save the ONNX model file.
     """
     # Convert TensorFlow model to ONNX
-    onnx_model = onnx.load_model(model)
-    onnx.checker.check_model(onnx_model)
+    onnx_model, _ = tf2onnx.convert.from_keras(model)
 
     # Save the ONNX model
-    onnx.save(onnx_model, onnx_file_path)
+    with open(onnx_file_path, "wb") as f:
+        f.write(onnx_model.SerializeToString())
 
     print(f"Model has been converted to ONNX and saved as {onnx_file_path}")
 
@@ -204,7 +205,7 @@ def execution():
     data_generator = DataGenerator(sequences_input, sequences_target, batch_size)
 
     # Train the model using the fit method
-    model.fit(data_generator, epochs=30)
+    model.fit(data_generator, epochs=1)
 
     # Evaluate the model
     test_loss, test_mae = model.evaluate(data_generator)

@@ -1,6 +1,6 @@
 from giza_actions.action import Action, action
 from giza_actions.task import task
-from giza_actions.datasets_loader import DatasetsLoader
+from giza_datasets import DatasetsLoader
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split

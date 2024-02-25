@@ -1,0 +1,82 @@
+[package]
+name = "inference"
+version = "0.1.0"
+edition = "2023_10"
+
+[dependencies]
+node_pad_const_82 = { path = "../initializers/node_pad_const_82"} 
+node_pad_const_65 = { path = "../initializers/node_pad_const_65"} 
+node_pad_const_48 = { path = "../initializers/node_pad_const_48"} 
+node_pad_const_31 = { path = "../initializers/node_pad_const_31"} 
+node_pad_const_14 = { path = "../initializers/node_pad_const_14"} 
+node_new_shape_119 = { path = "../initializers/node_new_shape_119"} 
+node_model_conv1d_9_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_9_conv1d_expanddims_1_0"} 
+node_model_conv1d_8_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_8_conv1d_expanddims_1_0"} 
+node_model_conv1d_7_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_7_conv1d_expanddims_1_0"} 
+node_model_conv1d_6_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_6_conv1d_expanddims_1_0"} 
+node_model_conv1d_5_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_5_conv1d_expanddims_1_0"} 
+node_model_conv1d_4_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_4_conv1d_expanddims_1_0"} 
+node_model_conv1d_3_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_3_conv1d_expanddims_1_0"} 
+node_model_conv1d_2_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_2_conv1d_expanddims_1_0"} 
+node_model_conv1d_11_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_11_conv1d_expanddims_1_0"} 
+node_model_conv1d_10_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_10_conv1d_expanddims_1_0"} 
+node_model_conv1d_1_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_1_conv1d_expanddims_1_0"} 
+node_model_conv1d_conv1d_expanddims_1_0 = { path = "../initializers/node_model_conv1d_conv1d_expanddims_1_0"} 
+node_const_fold_opt_139_148 = { path = "../initializers/node_const_fold_opt_139_148"} 
+node_const_fold_opt_139 = { path = "../initializers/node_const_fold_opt_139"} 
+model_conv1d_conv1d_9_perm = { path = "../attributes/model_conv1d_conv1d_9_perm"} 
+model_conv1d_conv1d_dilations = { path = "../attributes/model_conv1d_conv1d_dilations"} 
+model_conv1d_conv1d_strides = { path = "../attributes/model_conv1d_conv1d_strides"} 
+model_conv1d_conv1d_kernel_shape = { path = "../attributes/model_conv1d_conv1d_kernel_shape"} 
+model_conv1d_conv1d_11_perm = { path = "../attributes/model_conv1d_conv1d_11_perm"} 
+model_conv1d_1_conv1d_18_perm = { path = "../attributes/model_conv1d_1_conv1d_18_perm"} 
+model_conv1d_1_conv1d_dilations = { path = "../attributes/model_conv1d_1_conv1d_dilations"} 
+model_conv1d_1_conv1d_strides = { path = "../attributes/model_conv1d_1_conv1d_strides"} 
+model_conv1d_1_conv1d_kernel_shape = { path = "../attributes/model_conv1d_1_conv1d_kernel_shape"} 
+model_conv1d_2_conv1d_dilations = { path = "../attributes/model_conv1d_2_conv1d_dilations"} 
+model_conv1d_2_conv1d_strides = { path = "../attributes/model_conv1d_2_conv1d_strides"} 
+model_conv1d_2_conv1d_kernel_shape = { path = "../attributes/model_conv1d_2_conv1d_kernel_shape"} 
+model_conv1d_2_conv1d_28_perm = { path = "../attributes/model_conv1d_2_conv1d_28_perm"} 
+model_conv1d_3_conv1d_35_perm = { path = "../attributes/model_conv1d_3_conv1d_35_perm"} 
+model_conv1d_3_conv1d_dilations = { path = "../attributes/model_conv1d_3_conv1d_dilations"} 
+model_conv1d_3_conv1d_strides = { path = "../attributes/model_conv1d_3_conv1d_strides"} 
+model_conv1d_3_conv1d_kernel_shape = { path = "../attributes/model_conv1d_3_conv1d_kernel_shape"} 
+model_conv1d_3_conv1d_pads = { path = "../attributes/model_conv1d_3_conv1d_pads"} 
+model_conv1d_4_conv1d_dilations = { path = "../attributes/model_conv1d_4_conv1d_dilations"} 
+model_conv1d_4_conv1d_strides = { path = "../attributes/model_conv1d_4_conv1d_strides"} 
+model_conv1d_4_conv1d_kernel_shape = { path = "../attributes/model_conv1d_4_conv1d_kernel_shape"} 
+model_conv1d_4_conv1d_45_perm = { path = "../attributes/model_conv1d_4_conv1d_45_perm"} 
+model_conv1d_5_conv1d_52_perm = { path = "../attributes/model_conv1d_5_conv1d_52_perm"} 
+model_conv1d_5_conv1d_dilations = { path = "../attributes/model_conv1d_5_conv1d_dilations"} 
+model_conv1d_5_conv1d_strides = { path = "../attributes/model_conv1d_5_conv1d_strides"} 
+model_conv1d_5_conv1d_kernel_shape = { path = "../attributes/model_conv1d_5_conv1d_kernel_shape"} 
+model_conv1d_5_conv1d_pads = { path = "../attributes/model_conv1d_5_conv1d_pads"} 
+model_conv1d_6_conv1d_dilations = { path = "../attributes/model_conv1d_6_conv1d_dilations"} 
+model_conv1d_6_conv1d_strides = { path = "../attributes/model_conv1d_6_conv1d_strides"} 
+model_conv1d_6_conv1d_kernel_shape = { path = "../attributes/model_conv1d_6_conv1d_kernel_shape"} 
+model_conv1d_6_conv1d_62_perm = { path = "../attributes/model_conv1d_6_conv1d_62_perm"} 
+model_conv1d_7_conv1d_69_perm = { path = "../attributes/model_conv1d_7_conv1d_69_perm"} 
+model_conv1d_7_conv1d_dilations = { path = "../attributes/model_conv1d_7_conv1d_dilations"} 
+model_conv1d_7_conv1d_strides = { path = "../attributes/model_conv1d_7_conv1d_strides"} 
+model_conv1d_7_conv1d_kernel_shape = { path = "../attributes/model_conv1d_7_conv1d_kernel_shape"} 
+model_conv1d_7_conv1d_pads = { path = "../attributes/model_conv1d_7_conv1d_pads"} 
+model_conv1d_8_conv1d_dilations = { path = "../attributes/model_conv1d_8_conv1d_dilations"} 
+model_conv1d_8_conv1d_strides = { path = "../attributes/model_conv1d_8_conv1d_strides"} 
+model_conv1d_8_conv1d_kernel_shape = { path = "../attributes/model_conv1d_8_conv1d_kernel_shape"} 
+model_conv1d_8_conv1d_79_perm = { path = "../attributes/model_conv1d_8_conv1d_79_perm"} 
+model_conv1d_9_conv1d_86_perm = { path = "../attributes/model_conv1d_9_conv1d_86_perm"} 
+model_conv1d_9_conv1d_dilations = { path = "../attributes/model_conv1d_9_conv1d_dilations"} 
+model_conv1d_9_conv1d_strides = { path = "../attributes/model_conv1d_9_conv1d_strides"} 
+model_conv1d_9_conv1d_kernel_shape = { path = "../attributes/model_conv1d_9_conv1d_kernel_shape"} 
+model_conv1d_9_conv1d_pads = { path = "../attributes/model_conv1d_9_conv1d_pads"} 
+model_conv1d_10_conv1d_dilations = { path = "../attributes/model_conv1d_10_conv1d_dilations"} 
+model_conv1d_10_conv1d_strides = { path = "../attributes/model_conv1d_10_conv1d_strides"} 
+model_conv1d_10_conv1d_kernel_shape = { path = "../attributes/model_conv1d_10_conv1d_kernel_shape"} 
+model_conv1d_10_conv1d_96_perm = { path = "../attributes/model_conv1d_10_conv1d_96_perm"} 
+model_conv1d_11_conv1d_102_perm = { path = "../attributes/model_conv1d_11_conv1d_102_perm"} 
+model_conv1d_11_conv1d_dilations = { path = "../attributes/model_conv1d_11_conv1d_dilations"} 
+model_conv1d_11_conv1d_strides = { path = "../attributes/model_conv1d_11_conv1d_strides"} 
+model_conv1d_11_conv1d_kernel_shape = { path = "../attributes/model_conv1d_11_conv1d_kernel_shape"} 
+orion = { git = "https://github.com/gizatechxyz/orion.git", rev = "7d84a42" } 
+[lib]
+sierra-text = true

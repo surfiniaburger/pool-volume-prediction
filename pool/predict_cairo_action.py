@@ -149,6 +149,23 @@ def forecast_pool_volumes(input_data, model_id, version_id):
 
     return result, request_id
 
+@task(name=f' Mean Absolute Percentage Error')
+def calculate_mape(actual, predicted):
+    """
+    Calculate Mean Absolute Percentage Error (MAPE).
+
+    Args:
+        actual (array-like): Array of actual values.
+        predicted (array-like): Array of predicted values.
+
+    Returns:
+        float: Mean Absolute Percentage Error (MAPE) value.
+    """
+    actual, predicted = np.array(actual), np.array(predicted)
+    return np.mean(np.abs((actual - predicted) / actual)) * 100
+
+
+
 @action(name=f'Execute Pool Volume Forecasting', log_prints=True)
 def execution():
     # Use validation data for forecasting
@@ -160,6 +177,11 @@ def execution():
     # Print or handle the prediction result and request ID
     print("Forecasted Pool Volumes: ", result)
     print("Request ID: ", request_id)
+
+    # Calculate MAPE
+    mape = calculate_mape(y_val, result)
+    print("Mean Absolute Percentage Error (MAPE): {:.2f}%".format(mape))
+
 
     # Number of random samples to generate
     num_samples = 10  # Adjust as needed

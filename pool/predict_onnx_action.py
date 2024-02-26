@@ -95,7 +95,12 @@ def prepare_datasets():
 def prediction(X_val):
     model = GizaModel(model_path="./wavenet.onnx")
 
-    result = model.predict(input_feed={"input_1": X_val.reshape(1, 30, 13)}, verifiable=False)
+    # Ensure the input data matches the expected shape (1, 30, 14)
+    if X_val.shape != (1, 30, 14):
+        print("Invalid input shape. Expected shape: (1, 30, 14)")
+        return None
+
+    result = model.predict(input_feed={"input_1": X_val}, verifiable=False)
 
     return result
 
@@ -104,41 +109,28 @@ def execution():
     # Prepare datasets
     X_train, y_train, X_test, y_test, X_val, y_val = prepare_datasets()
 
+    # Subsample the data
+    num_samples_to_select = 30  # Adjust as needed
+    if num_samples_to_select > X_val.shape[0]:
+        print("Number of samples to select exceeds the size of the dataset.")
+        return None
+    random_indices = np.random.choice(X_val.shape[0], num_samples_to_select, replace=False)
+    X_val_subset = X_val.iloc[random_indices]
+
     selected_columns = ['blockchain_arbitrum', 'blockchain_avalanche_c', 'blockchain_base', 'blockchain_ethereum', 'blockchain_gnosis', 'blockchain_optimism', 'blockchain_polygon', 'token_pair_wstETH-wUSDM', 'token_pair_xSNXa-YFI', 'token_pair_yCURVE-YFI', 'day_of_week', 'month', 'year']
-    X_val_selected = X_val[selected_columns]
+    X_val_selected = X_val_subset[selected_columns]
 
     # Convert the DataFrame to a NumPy array and ensure it is of type float32
     X_val_array = X_val_selected.astype(np.float32).values
 
     print("Shape of X_val_array before reshaping:", X_val_array.shape)
 
-    # Define the window size
-    window_size = 30
-
-    # Initialize an empty list to store the reshaped samples
-    reshaped_samples = []
-
-    # Slide a window of size window_size over the original data
-    for i in range(len(X_val_array) - window_size + 1):
-        # Extract a window of size window_size
-        window = X_val_array[i : i + window_size]
-        # Append the window to the list of reshaped samples
-        reshaped_samples.append(window)
-
-    # Convert the list of reshaped samples to a numpy array
-    X_val_reshaped = np.array(reshaped_samples)
-
-    # Ensure the reshaped array has the correct shape
-    print("Shape of X_val_reshaped:", X_val_reshaped.shape)
-
-
-    # Ensure the array has the correct shape (number of samples, number of features), reshape it to add dimension
-    # This will conert it from a 2D array to a 3D array
-    X_val_reshaped = np.expand_dims(X_val_reshaped, axis=0)
 
     # Perform prediction with ONNX
-    result = prediction(X_val_reshaped)
-    print(f"Predicted Pool Volumes: {result}")
+    result = prediction(X_val_array.reshape(1, 30, 14))
+    if result is not None:
+        print(f"Predicted Pool Volumes: {result}")
+        print("✅ Pool Volumes predicted successfully")
 
     return result
 

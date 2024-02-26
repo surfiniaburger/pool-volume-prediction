@@ -1,7 +1,24 @@
 # Pool Volume Forecasting
 
 ## Project description
-The project involves forecasting pool volumes using time-series data. It begins with loading data from Polar into a DataFrame, extracting relevant features such as day of the week, month, and year, and performing one-hot encoding for categorical variables. After standardizing numerical features and preparing the input sequences by sliding a window across the time-series data, a WaveNet model is built and trained using TensorFlow/Keras. The trained model is then utilized to predict pool volumes on unseen data. The predictions are further processed using ONNX, with the verifiable=True setting converting them to Cairo format, optimizing them for deployment or downstream tasks.
+The project involves forecasting pool volumes using time-series data. It begins with loading data from Polar into a DataFrame, extracting relevant features such as day of the week, month, and year, and performing one-hot encoding for categorical variables. After standardizing numerical features and preparing the input sequences by sliding a window across the time-series data, a WaveNet model is built and trained using TensorFlow/Keras. The trained model is then utilized to predict pool volumes on unseen data. The predictions are further processed using ONNX, EZKL, with the verifiable=True setting converting them to Cairo format, optimizing them for deployment or downstream tasks.
+
+## Tech Stack
+- Giza Actions SDK
+- Giza cli
+- Giza Virtual Environment
+- Giza Dataset
+- WaveNet
+- Jupyter Notebook
+- Tensorflow
+- Poetry
+- Cairo
+- EZKL
+- ONNX
+
+## Setbacks
+
+I could not deploy to ONNX, EZKL and Cairo yet. My code needs polishing. 
 
 Welcome to the Giza Actions SDK template! The [Giza Actions SDK](https://actions.gizatech.xyz/welcome/giza-actions-sdk) is tailored to assist you in designing your ZKML workflows efficiently. This project provides pre-configured actions ready for deployment on the Giza platform. The purpose of this template is to demonstrate how to construct your ZKML workflows using the Giza Actions SDK.
 

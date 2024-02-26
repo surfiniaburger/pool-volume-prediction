@@ -10,7 +10,7 @@ from giza_actions.model import GizaModel
 @task(name="Prepare Datasets")
 def prepare_datasets():
     print("Prepare dataset...")
-    
+
     # Load data from Polar into a DataFrame
     loader = DatasetsLoader()
     df_polar = loader.load('balancer-daily-trade-volume')

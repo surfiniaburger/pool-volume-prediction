@@ -92,17 +92,18 @@ def prepare_datasets():
 
 
 @task(name="Prediction with CAIRO")
-def prediction(X_val):
-    model = GizaModel(model_path="./wavenet.onnx")
+def prediction(X_val, model_id, version_id):
+    model = GizaModel(id=model_id, version=version_id)
 
     # Ensure the input data matches the expected shape (1, 30, 14)
     if X_val.shape != (1, 30, 14):
         print("Invalid input shape. Expected shape: (1, 30, 14)")
         return None
 
-    result = model.predict(input_feed={"input_1": X_val}, verifiable=True)
+    (result, request_id) = model.predict(input_feed={"input_1": X_val}, verifiable=True, output_dtype='Tensor<FP16x16>'
+  )
 
-    return result
+    return result, request_id
 
 
 
@@ -139,9 +140,10 @@ def execution():
 
 
     # Perform prediction with CAIRO
-    result = prediction(X_val_array_modified.reshape(1, 30, 14))
+    (result, request_id) = prediction(X_val_array_modified.reshape(1, 30, 14), model_id=377, version_id=1)
     if result is not None:
         print(f"Predicted Pool Volumes: {result}")
+        print("Request id: ", request_id)
         print("✅ Pool Volumes predicted successfully")
 
     return result

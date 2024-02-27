@@ -104,6 +104,8 @@ def prediction(X_val):
 
     return result
 
+
+
 @action(name="Execution: Prediction with ONNX", log_prints=True)
 def execution():
     # Prepare datasets
@@ -121,13 +123,22 @@ def execution():
     X_val_selected = X_val_subset[selected_columns]
 
     # Convert the DataFrame to a NumPy array and ensure it is of type float32
-    X_val_array = X_val_selected.astype(np.float32).values
+    X_val_array = X_val_selected.values.astype(np.float32)
 
     print("Shape of X_val_array before reshaping:", X_val_array.shape)
+    # Assuming X_val_array has shape (30, 13)
+    # Create an array of zeros with shape (30, 1)
+    zeros_column = np.zeros((30, 1))
+
+    # Concatenate the zeros column to X_val_array along the second axis
+    X_val_array_modified = np.concatenate((X_val_array, zeros_column), axis=1)
+
+    # Convert the input data to float32
+    X_val_array_modified = X_val_array_modified.astype(np.float32)
 
 
     # Perform prediction with ONNX
-    result = prediction(X_val_array.reshape(1, 30, 14))
+    result = prediction(X_val_array_modified.reshape(1, 30, 14))
     if result is not None:
         print(f"Predicted Pool Volumes: {result}")
         print("✅ Pool Volumes predicted successfully")

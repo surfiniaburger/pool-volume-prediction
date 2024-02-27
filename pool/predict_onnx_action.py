@@ -6,7 +6,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from giza_actions.model import GizaModel
-
+from sklearn.metrics import r2_score
 
 window_size = 30
 loader = DatasetsLoader()
@@ -102,7 +102,7 @@ def prediction(X_val):
 
     result = model.predict(input_feed={"input_1": X_val}, verifiable=False)
 
-    return result
+    return result.reshape(-1, 1)  # Reshape the output to (30, 1)
 
 
 
@@ -118,6 +118,7 @@ def execution():
         return None
     random_indices = np.random.choice(X_val.shape[0], num_samples_to_select, replace=False)
     X_val_subset = X_val.iloc[random_indices]
+    y_val_subset = y_val.iloc[random_indices]
 
     selected_columns = ['blockchain_arbitrum', 'blockchain_avalanche_c', 'blockchain_base', 'blockchain_ethereum', 'blockchain_gnosis', 'blockchain_optimism', 'blockchain_polygon', 'token_pair_wstETH-wUSDM', 'token_pair_xSNXa-YFI', 'token_pair_yCURVE-YFI', 'day_of_week', 'month', 'year']
     X_val_selected = X_val_subset[selected_columns]
@@ -142,6 +143,10 @@ def execution():
     if result is not None:
         print(f"Predicted Pool Volumes: {result}")
         print("✅ Pool Volumes predicted successfully")
+
+        # Calculate R-squared
+        r_squared = r2_score(y_val_subset, result)
+        print("R-squared:", r_squared)
 
     return result
 

@@ -6,49 +6,6 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from giza_actions.model import GizaModel
-import os
-import certifi
-os.environ['SSL_CERT_FILE'] = certifi.where()
-
-import pandas as pd
-import numpy as np
-import random
-from datetime import datetime, timedelta
-
-# Generate random input data similar to X_val
-def generate_random_input_data(num_samples):
-    # Define the columns
-    columns = ['day', 'pool_id'] + ['blockchain_' + str(i) for i in range(10)] + ['token_pair_' + str(i) for i in range(10)] + ['day_of_week', 'month', 'year']
-
-    # Generate random data
-    random_data = []
-    for _ in range(num_samples):
-        # Generate random date
-        start_date = datetime(2020, 1, 1)
-        end_date = datetime(2024, 12, 31)
-        random_date = start_date + timedelta(days=random.randint(0, (end_date - start_date).days))
-
-        # Generate random pool ID
-        pool_id = '0x' + ''.join(random.choices('0123456789abcdef', k=40))
-
-        # Generate random blockchain and token pair values
-        blockchain_values = [random.choice([True, False]) for _ in range(10)]
-        token_pair_values = [random.choice([True, False]) for _ in range(10)]
-
-        # Generate random day of week, month, and year
-        day_of_week = random.randint(0, 6)
-        month = random.randint(1, 12)
-        year = random.randint(2020, 2024)
-
-        # Append to random data list
-        random_data.append([random_date, pool_id] + blockchain_values + token_pair_values + [day_of_week, month, year])
-
-    # Create DataFrame
-    df_random = pd.DataFrame(random_data, columns=columns)
-
-    return df_random
-
-
 
 
 window_size = 30
@@ -134,69 +91,61 @@ def prepare_datasets():
 
 
 
+@task(name="Prediction with CAIRO")
+def prediction(X_val):
+    model = GizaModel(model_path="./wavenet.onnx")
 
-# Update with your actual model ID and version ID
-MODEL_ID = 377  # Replace with your model ID
-VERSION_ID = 1   # Replace with your version ID
+    # Ensure the input data matches the expected shape (1, 30, 14)
+    if X_val.shape != (1, 30, 14):
+        print("Invalid input shape. Expected shape: (1, 30, 14)")
+        return None
 
-@task(name=f'Pool Volume Forecasting Task')
-def forecast_pool_volumes(input_data, model_id, version_id):
-    # Load the GizaModel for pool volume forecasting
-    model = GizaModel(id=model_id, version=version_id)
+    result = model.predict(input_feed={"input_1": X_val}, verifiable=True)
 
-    # Perform prediction using the loaded model
-    result, request_id = model.predict(input_feed={"input": input_data}, verifiable=True, output_dtype='Tensor<FP16x16>')
-
-    return result, request_id
-
-@task(name=f' Mean Absolute Percentage Error')
-def calculate_mape(actual, predicted):
-    """
-    Calculate Mean Absolute Percentage Error (MAPE).
-
-    Args:
-        actual (array-like): Array of actual values.
-        predicted (array-like): Array of predicted values.
-
-    Returns:
-        float: Mean Absolute Percentage Error (MAPE) value.
-    """
-    actual, predicted = np.array(actual), np.array(predicted)
-    return np.mean(np.abs((actual - predicted) / actual)) * 100
+    return result
 
 
 
-@action(name=f'Execute Pool Volume Forecasting', log_prints=True)
+@action(name="Execution: Prediction with CAIRO", log_prints=True)
 def execution():
-    # Use validation data for forecasting
+    # Prepare datasets
     X_train, y_train, X_test, y_test, X_val, y_val = prepare_datasets()
 
-    # Perform pool volume forecasting using the validation data
-    result, request_id = forecast_pool_volumes(X_val, MODEL_ID, VERSION_ID)
+    # Subsample the data
+    num_samples_to_select = 30  # Adjust as needed
+    if num_samples_to_select > X_val.shape[0]:
+        print("Number of samples to select exceeds the size of the dataset.")
+        return None
+    random_indices = np.random.choice(X_val.shape[0], num_samples_to_select, replace=False)
+    X_val_subset = X_val.iloc[random_indices]
+    y_val_subset = y_val.iloc[random_indices]
 
-    # Print or handle the prediction result and request ID
-    print("Forecasted Pool Volumes: ", result)
-    print("Request ID: ", request_id)
+    selected_columns = ['blockchain_arbitrum', 'blockchain_avalanche_c', 'blockchain_base', 'blockchain_ethereum', 'blockchain_gnosis', 'blockchain_optimism', 'blockchain_polygon', 'token_pair_wstETH-wUSDM', 'token_pair_xSNXa-YFI', 'token_pair_yCURVE-YFI', 'day_of_week', 'month', 'year']
+    X_val_selected = X_val_subset[selected_columns]
 
-    # Calculate MAPE
-    mape = calculate_mape(y_val, result)
-    print("Mean Absolute Percentage Error (MAPE): {:.2f}%".format(mape))
+    # Convert the DataFrame to a NumPy array and ensure it is of type float32
+    X_val_array = X_val_selected.values.astype(np.float32)
+
+    print("Shape of X_val_array before reshaping:", X_val_array.shape)
+    # Assuming X_val_array has shape (30, 13)
+    # Create an array of zeros with shape (30, 1)
+    zeros_column = np.zeros((30, 1))
+
+    # Concatenate the zeros column to X_val_array along the second axis
+    X_val_array_modified = np.concatenate((X_val_array, zeros_column), axis=1)
+
+    # Convert the input data to float32
+    X_val_array_modified = X_val_array_modified.astype(np.float32)
 
 
-    # Number of random samples to generate
-    num_samples = 10  # Adjust as needed
+    # Perform prediction with CAIRO
+    result = prediction(X_val_array_modified.reshape(1, 30, 14))
+    if result is not None:
+        print(f"Predicted Pool Volumes: {result}")
+        print("✅ Pool Volumes predicted successfully")
 
-    # Generate random input data
-    random_input_data = generate_random_input_data(num_samples)
+    return result
 
-    # Perform pool volume forecasting using the validation data
-    result, request_id = forecast_pool_volumes(random_input_data, MODEL_ID, VERSION_ID)
-
-    # Print or handle the prediction result and request ID
-    print("Forecasted Pool Volumes (random): ", result)
-    print("Request ID: ", request_id)
-
-    return result, request_id
 
 if __name__ == "__main__":
     action_deploy = Action(entrypoint=execution, name="pool-volume-prediction-with-cairo-action")

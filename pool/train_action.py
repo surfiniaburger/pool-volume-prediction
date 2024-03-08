@@ -240,7 +240,6 @@ def execution():
     onnx_file_path = "wavenet.onnx"
     convert_to_onnx(model, onnx_file_path)
 
-    
 
 
 # Create an Action object and serve it

@@ -16,9 +16,6 @@ The project involves forecasting pool volumes using time-series data. It begins 
 - EZKL
 - ONNX
 
-## Setbacks
-
-I could not deploy to ONNX, EZKL and Cairo yet. My code needs polishing. 
 
 Welcome to the Giza Actions SDK template! The [Giza Actions SDK](https://actions.gizatech.xyz/welcome/giza-actions-sdk) is tailored to assist you in designing your ZKML workflows efficiently. This project provides pre-configured actions ready for deployment on the Giza platform. The purpose of this template is to demonstrate how to construct your ZKML workflows using the Giza Actions SDK.
 

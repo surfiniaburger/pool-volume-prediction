@@ -8,75 +8,99 @@ from sklearn.preprocessing import StandardScaler
 from giza_actions.model import GizaModel
 from sklearn.metrics import r2_score
 
-window_size = 30
-loader = DatasetsLoader()
-# Load data from Polar into a DataFrame
-df_polar = loader.load('balancer-daily-trade-volume')
+@task(name="Define Model Hyperparameters")
+def define_model_hyperparameters():
+    selected_columns = ['trading_volume_usd', 'blockchain_arbitrum', 'blockchain_avalanche_c', 'blockchain_base', 'blockchain_ethereum', 'blockchain_gnosis', 'blockchain_optimism', 'blockchain_polygon', 'token_pair_wstETH-wUSDM', 'token_pair_xSNXa-YFI', 'token_pair_yCURVE-YFI', 'day_of_week', 'month', 'year']
+    window_size = 30
+    input_shape = (window_size, len(selected_columns))
+    num_filters = 32
+    num_blocks = 5
+    kernel_size = 8
+    num_classes = 1  # Assuming regression task, change to number of classes for classification task
+    batch_size = 32
 
-# Extracting data from the Polar DataFrame
-data = {
-    'day': df_polar['day'],
-    'pool_id': df_polar['pool_id'],
-    'blockchain': df_polar['blockchain'],
-    'token_pair': df_polar['token_pair'],
-    'trading_volume_usd': df_polar['trading_volume_usd']
-}
+    return input_shape, num_filters, num_blocks, kernel_size, num_classes, batch_size, window_size
 
-# Creating a new Pandas DataFrame
-df_pandas = pd.DataFrame(data)
+@task(name="Load Data")
+def load_data():
+    loader = DatasetsLoader()
+    # Load data from Polar into a DataFrame
+    df_polar = loader.load('balancer-daily-trade-volume')
+    return df_polar
 
-# Perform one-hot encoding for categorical variables
-df_encoded = pd.get_dummies(df_pandas, columns=['blockchain', 'token_pair'])
+@task(name="Preprocess Data")
+def preprocess_data(df_polar):
+    # Extracting data from the Polar DataFrame
+    data = {
+        'day': df_polar['day'],
+        'pool_id': df_polar['pool_id'],
+        'blockchain': df_polar['blockchain'],
+        'token_pair': df_polar['token_pair'],
+        'trading_volume_usd': df_polar['trading_volume_usd']
+    }
 
-# Initialize StandardScaler
-standard_scaler = StandardScaler()
+    # Creating a new Pandas DataFrame
+    df_pandas = pd.DataFrame(data)
 
-# Perform Standardization on numerical features
-df_encoded[['trading_volume_usd']] = standard_scaler.fit_transform(df_encoded[['trading_volume_usd']])
+    # Perform one-hot encoding for categorical variables
+    df_encoded = pd.get_dummies(df_pandas, columns=['blockchain', 'token_pair'])
 
-# Convert 'day' column to datetime format
-df_encoded['day'] = pd.to_datetime(df_encoded['day'])
+    # Initialize StandardScaler
+    standard_scaler = StandardScaler()
 
-# Extract relevant features: day of the week, month, and year
-df_encoded['day_of_week'] = df_encoded['day'].dt.dayofweek
-df_encoded['month'] = df_encoded['day'].dt.month
-df_encoded['year'] = df_encoded['day'].dt.year
+    # Perform Standardization on numerical features
+    df_encoded[['trading_volume_usd']] = standard_scaler.fit_transform(df_encoded[['trading_volume_usd']])
 
-# Calculate the total number of data points
-total_data_points = df_encoded.shape[0]
+    # Convert 'day' column to datetime format
+    df_encoded['day'] = pd.to_datetime(df_encoded['day'])
 
-# Calculate the total number of sequences
-total_sequences = total_data_points - window_size + 1
+    # Extract relevant features: day of the week, month, and year
+    df_encoded['day_of_week'] = df_encoded['day'].dt.dayofweek
+    df_encoded['month'] = df_encoded['day'].dt.month
+    df_encoded['year'] = df_encoded['day'].dt.year
 
-# Select only necessary columns from the DataFrame
-selected_columns = ['trading_volume_usd', 'blockchain_arbitrum', 'blockchain_avalanche_c', 'blockchain_base', 'blockchain_ethereum', 'blockchain_gnosis', 'blockchain_optimism', 'blockchain_polygon', 'token_pair_wstETH-wUSDM', 'token_pair_xSNXa-YFI', 'token_pair_yCURVE-YFI', 'day_of_week', 'month', 'year']
-df_selected = df_encoded[selected_columns]
+    return df_encoded
 
-# Slide a window of this length across your time-series data
-sequences_input = []
-sequences_target = []
+@task(name="Create Sequences")
+def create_sequences(df_encoded, window_size):
+    # Calculate the total number of data points
+    total_data_points = df_encoded.shape[0]
 
-for i in range(total_sequences):
-    # Extract the historical data points as the input sequence
-    input_sequence = df_selected.iloc[i : i + window_size].values
-    sequences_input.append(input_sequence)
-    
-    # Extract the next data point as the target for prediction
-    target = df_selected.iloc[i + window_size - 1, 2]
-    sequences_target.append(target)
+    # Calculate the total number of sequences
+    total_sequences = total_data_points - window_size + 1
 
-# Convert lists to numpy arrays
-sequences_input = np.array(sequences_input)
-sequences_target = np.array(sequences_target)
+    # Select only necessary columns from the DataFrame
+    selected_columns = ['trading_volume_usd', 'blockchain_arbitrum', 'blockchain_avalanche_c', 'blockchain_base', 'blockchain_ethereum', 'blockchain_gnosis', 'blockchain_optimism', 'blockchain_polygon', 'token_pair_wstETH-wUSDM', 'token_pair_xSNXa-YFI', 'token_pair_yCURVE-YFI', 'day_of_week', 'month', 'year']
+    df_selected = df_encoded[selected_columns]
 
-# Reshape the target sequences to match the shape of the input sequences
-sequences_target = sequences_target.reshape(-1, 1)
+    # Slide a window of this length across your time-series data
+    sequences_input = []
+    sequences_target = []
 
-sequences_input = sequences_input.astype(np.float32)
-sequences_target = sequences_target.astype(np.float32)
+    for i in range(total_sequences):
+        # Extract the historical data points as the input sequence
+        input_sequence = df_selected.iloc[i : i + window_size].values
+        sequences_input.append(input_sequence)
+        # Extract the next data point as the target for prediction
+        target = df_selected.iloc[i + window_size - 1, 2]  
+        sequences_target.append(target)
+
+    # Convert lists to numpy arrays
+    sequences_input = np.array(sequences_input)
+    sequences_target = np.array(sequences_target)
+
+    # Reshape the target sequences to match the shape of the input sequences
+    sequences_target = sequences_target.reshape(-1, 1)
+
+    sequences_input = sequences_input.astype(np.float32)
+    sequences_target = sequences_target.astype(np.float32)
+
+    return sequences_input, sequences_target
+
+
 
 @task(name="Prepare Datasets")
-def prepare_datasets():
+def prepare_datasets(df_encoded):
     print("Prepare dataset...")
 
     # Splitting into training and testing sets (80% train, 20% test)
@@ -88,7 +112,6 @@ def prepare_datasets():
     print("✅ Datasets prepared successfully")
 
     return X_train, y_train, X_test, y_test, X_val, y_val
-
 
 
 @task(name="Prediction with ONNX")
@@ -108,8 +131,15 @@ def prediction(X_val):
 
 @action(name="Execution: Prediction with ONNX", log_prints=True)
 def execution():
+    input_shape, num_filters, num_blocks, kernel_size, num_classes, batch_size, window_size = define_model_hyperparameters()
+    df_polar = load_data()
+    df_encoded = preprocess_data(df_polar)
+    sequences_input, sequences_target = create_sequences(df_encoded, window_size)
+
+
     # Prepare datasets
-    X_train, y_train, X_test, y_test, X_val, y_val = prepare_datasets()
+    X_train, y_train, X_test, y_test, X_val, y_val = prepare_datasets(df_encoded)
+
 
     # Subsample the data
     num_samples_to_select = 30  # Adjust as needed

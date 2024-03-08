@@ -29,7 +29,7 @@ def define_model_hyperparameters():
     num_classes = 1  # Assuming regression task, change to number of classes for classification task
     batch_size = 32
 
-    return input_shape, num_filters, num_blocks, kernel_size, num_classes, batch_size
+    return input_shape, num_filters, num_blocks, kernel_size, num_classes, batch_size, window_size
 
 @task(name="Load Data")
 def load_data():
@@ -179,25 +179,6 @@ def build_wavenet(input_shape, num_filters, num_blocks, kernel_size, num_classes
     print("✅ Model trained successfully")
     return model
 
-@task(name="Visualize Data")
-def visualize_data(df_encoded):
-    # Convert 'day' column to datetime format if not already
-    df_encoded['day'] = pd.to_datetime(df_encoded['day'])
-
-    # Set the 'day' column as the index for time series plotting
-    df_encoded.set_index('day', inplace=True)
-
-    # Plot time series data
-    plt.figure(figsize=(12, 6))
-    for column in df_encoded.columns:
-        plt.plot(df_encoded.index, df_encoded[column], label=column)
-    plt.xlabel('Date')
-    plt.ylabel('Value')
-    plt.title('Time Series Plot')
-    plt.legend()
-    plt.show()
-
-    print("Time series plot generated.")
 
 
 
@@ -223,9 +204,10 @@ def convert_to_onnx(model, onnx_file_path):
 
 @action(name="Action: Convert To ONNX", log_prints=True)
 def execution():
-    input_shape, num_filters, num_blocks, kernel_size, num_classes, batch_size = define_model_hyperparameters()
+
+    input_shape, num_filters, num_blocks, kernel_size, num_classes, batch_size, window_size = define_model_hyperparameters()
     df_polar = load_data()
-    df_encoded, window_size = preprocess_data(df_polar)
+    df_encoded = preprocess_data(df_polar)
     sequences_input, sequences_target = create_sequences(df_encoded, window_size)
 
 
@@ -249,18 +231,16 @@ def execution():
     data_generator = DataGenerator(sequences_input, sequences_target, batch_size)
 
     # Train the model using the fit method
-    model.fit(data_generator, epochs=1) 
-
+    model.fit(data_generator, epochs=1)
     # Evaluate the model
-    evaluate_model(model, X_test, y_test)
+   # evaluate_model(model, X_test, y_test)
 
 
     # Convert to ONNX
     onnx_file_path = "wavenet.onnx"
     convert_to_onnx(model, onnx_file_path)
 
-    # Visualize the data
-    visualize_data(df_encoded)
+    
 
 
 # Create an Action object and serve it
